@@ -5,6 +5,9 @@ import com.geishatokyo.jukai.simpledb.SimpleDBConnection
 import com.geishatokyo.jukai.simpledb.{SimpleDBConnection, SimpleDB}
 import com.geishatokyo.jukai.SimpleCredentialsProvider
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient
+import com.geishatokyo.jukai.util.StringUtil
+import com.amazonaws.services.s3.AmazonS3Client
+import com.geishatokyo.jukai.s3.S3Connection
 
 
 /**
@@ -36,6 +39,16 @@ class Region[A](
     new SimpleDBConnection(client)
   }
 
+  def s3(implicit WithCredentials : A =:= WithCredentials) = {
+    val endpoint = {
+      if (endPointDomain == "amazonaws.com") "s3." + endPointDomain
+      else join("s3","-",endPointDomain)
+    }
+    val client = new AmazonS3Client(credentialsProvider)
+    client.setEndpoint(endpoint)
+    new S3Connection(client)
+  }
+
 
   private def join( serviceName : String ,separator : String, endPointDomain : String) = {
     serviceName + separator + endPointDomain.stripPrefix(separator)
@@ -61,6 +74,7 @@ object Region{
 
   val nameMap = Map(
     "northernvirginia" -> NorthernVirginia,
+    "northern-virginia" -> NorthernVirginia,
     "virginia" -> NorthernVirginia,
     "us-east" -> NorthernVirginia,
     "oregon" -> Oregon,
@@ -80,7 +94,8 @@ object Region{
     "sa-east" -> SaoPaulo)
 
   def fromName( name : String) = {
-    nameMap(name.toLowerCase)
+    nameMap.get(name.toLowerCase) orElse
+    nameMap.get(StringUtil.camelToHyphen(name)) get
   }
 
 }

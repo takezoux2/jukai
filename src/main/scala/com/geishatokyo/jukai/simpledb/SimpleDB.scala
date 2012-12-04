@@ -60,10 +60,10 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
     }else if (_putValues.size == 1){
       val pv = _putValues(0)
       val request = new PutAttributesRequest(domain,
-        pv.key, Implicits.toReplaceableAttributes(pv.values,pv.replace_?) )
+        pv.key, SimpleDBImplicits.toReplaceableAttributes(pv.values,pv.replace_?) )
 
       if (pv.exp.isDefined){
-        request.setExpected(Implicits.toUpdateCondition(pv.exp.get))
+        request.setExpected(SimpleDBImplicits.toUpdateCondition(pv.exp.get))
       }
 
       try{
@@ -96,7 +96,7 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
 
       val request = new BatchPutAttributesRequest()
       new BatchPutAttributesRequest(domain,_putValues.map(
-        Implicits.toReplaceableItem _
+        SimpleDBImplicits.toReplaceableItem _
       ).toList.asJava)
 
       syncClient.batchPutAttributes(request)
@@ -104,6 +104,10 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
     }
 
 
+  }
+
+  def put(key : String)( values : (String,String)*) : AWSResult[Unit,Unit]  = {
+    put(PutRequest(key,values.toMap))
   }
 
   def get(getInfo : GetRequest ) : AWSResult[Map[String,String],GetAttributesResult]= {
@@ -116,7 +120,7 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
       request.setConsistentRead(getInfo.consistentRead_?)
     }
 
-    import Implicits._
+    import SimpleDBImplicits._
     val result = syncClient.getAttributes(request)
     new AWSSuccess(result.getAttributes,result)
 
@@ -130,7 +134,7 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
   def getOne( getInfo : GetRequest) : String = {
     get(getInfo) match{
       case AWSSuccess(values,_) => {
-        getInfo.attributes.find(s => values.contains(s)).get
+        getInfo.attributes.find(s => values.contains(s)).map(values(_)).get
       }
     }
   }
@@ -158,7 +162,7 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
         request.setAttributes(attributes)
       }
       if (columnInfo.exp.isDefined){
-        request.setExpected(Implicits.toUpdateCondition(columnInfo.exp.get))
+        request.setExpected(SimpleDBImplicits.toUpdateCondition(columnInfo.exp.get))
       }
 
       try{

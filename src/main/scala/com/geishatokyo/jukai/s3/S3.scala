@@ -3,8 +3,8 @@ package com.geishatokyo.jukai.s3
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3Client}
 import scala.collection.JavaConverters._
-import com.geishatokyo.jukai.IOUtil
-import com.amazonaws.services.s3.model.{CannedAccessControlList, ObjectMetadata}
+import com.geishatokyo.jukai.{AWSResult, AWSSuccess, IOUtil}
+import com.amazonaws.services.s3.model.{PutObjectResult, AccessControlList, CannedAccessControlList, ObjectMetadata}
 import java.io.{ByteArrayInputStream, InputStream}
 
 /**
@@ -18,7 +18,18 @@ class S3(client : AmazonS3,bucketName : String) extends scala.collection.mutable
 
   var metadataGenerator : MetadataGenerator = DefaultMetadataGenerator
 
-  var defaultACL : Option[CannedAccessControlList] = Some(CannedAccessControlList.PublicRead)
+  var defaultACL : Option[Either[CannedAccessControlList,AccessControlList]] = Some(Left(CannedAccessControlList.PublicRead))
+
+  def setDefaultACL( v : CannedAccessControlList) = {
+    defaultACL = Some(Left(v))
+  }
+
+  def setDefaultACL( v : AccessControlList) = {
+    defaultACL = Some(Right(v))
+  }
+
+
+
 
 
   def createBucket() = {
@@ -68,17 +79,30 @@ class S3(client : AmazonS3,bucketName : String) extends scala.collection.mutable
     client.getObject(bucketName,key)
   }
 
-  def putObject(key : String, data : Array[Byte]) : Unit = {
+  def putObject(key : String, data : Array[Byte]) : AWSResult[String,PutObjectResult]  = {
     val metadata = metadataGenerator.generateMetadata(key,data)
 
     putObject(key , new ByteArrayInputStream(data),metadata)
   }
 
-  def putObject(key : String, inputStream : InputStream, metadata : ObjectMetadata) : Unit = {
-    client.putObject(bucketName,key,inputStream,metadata)
+  def putObject(key : String, inputStream : InputStream, metadata : ObjectMetadata) : AWSResult[String,PutObjectResult] = {
+    val response = client.putObject(bucketName,key,inputStream,metadata)
+    defaultACL match{
+      case None =>
+      case Some(Left(cannedAccessControlList)) => {
+        setACL(key,cannedAccessControlList)
+      }
+      case Some(Right(accessControlList)) => {
+        setACL(key,accessControlList)
+      }
+    }
+    AWSSuccess(response.getVersionId,response)
   }
 
   def setACL(key : String, control : CannedAccessControlList) = {
+    client.setObjectAcl(bucketName,key,control)
+  }
+  def setACL(key : String, control : AccessControlList) = {
     client.setObjectAcl(bucketName,key,control)
   }
 

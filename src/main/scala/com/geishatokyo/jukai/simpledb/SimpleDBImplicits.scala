@@ -8,7 +8,7 @@ import com.amazonaws.services.simpledb.model._
  * User: takeshita
  * DateTime: 12/11/01 22:46
  */
-object Implicits {
+object SimpleDBImplicits {
 
   implicit def strToGetRequest(k : String) = {
     GetRequest(k)
@@ -53,6 +53,14 @@ object Implicits {
 
     def ~>( attributeNames : String*) = {
       GetRequest(k,attributeNames:_*)
+    }
+
+    def ===(value : String) = {
+      Equals(k,value)
+    }
+
+    def exist = {
+      Exists(k)
     }
   }
 

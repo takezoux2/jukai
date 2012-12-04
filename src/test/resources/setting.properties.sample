@@ -1,0 +1,8 @@
+skip.test.all=false
+skip.test.s3=false
+skip.test.simpledb=false
+
+aws.s3.bucketname=!please_set_global_bucket_name
+aws.region=tokyo
+aws.accessKey=Set your access key
+aws.secretKey=Set your secret key

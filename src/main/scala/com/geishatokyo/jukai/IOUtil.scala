@@ -19,7 +19,9 @@ object IOUtil {
     var n = 1
     while(n > 0){
       n = inputStream.read(buffer)
-      bao.write(buffer,0,n)
+      if(n > 0){
+        bao.write(buffer,0,n)
+      }
     }
     bao.toByteArray
   }

@@ -1,9 +1,10 @@
 package com.geishatokyo.jukai.s3
 
 import com.amazonaws.auth.AWSCredentialsProvider
-import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.{AmazonS3Client, AmazonS3}
 import com.amazonaws.services.s3.model.Bucket
 import scala.collection.JavaConverters._
+import java.io.Closeable
 
 /**
  * Created with IntelliJ IDEA.
@@ -31,6 +32,15 @@ class S3Connection(client : AmazonS3) {
 
   def listBucketNames() : List[String] = {
     listBuckets().map(_.getName)
+  }
+
+
+  def shutdown() = {
+    client match{
+      case c : AmazonS3Client => c.shutdown()
+      case c : Closeable => c.close()
+      case _ =>
+    }
   }
 
 

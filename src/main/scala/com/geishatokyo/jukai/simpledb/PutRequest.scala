@@ -10,6 +10,9 @@ case class PutRequest ( key : String, values : Map[String,String], exp : Option[
   def expecting( exp : Exp) = {
     PutRequest(key,values,Some(exp),replace_?)
   }
+
+  def when(exp : Exp) = expecting(exp)
+
   def +( v : (String,String)) = {
     PutRequest(key , values + v,exp,replace_?)
   }

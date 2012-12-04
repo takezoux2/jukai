@@ -15,5 +15,6 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-java-sdk" % "1.3.26" % "provided",
   "org.specs2" %% "specs2" % "1.12.3" % "test",
   "junit" % "junit" % "4.11" % "test",
-  "org.mockito" % "mockito-all" % "1.9.0" % "test"
+  "org.mockito" % "mockito-all" % "1.9.0" % "test",
+  "org.slf4j" % "slf4j-simple" % "1.6.4" % "test"
 )
