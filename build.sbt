@@ -10,6 +10,8 @@ resolvers += Resolver.mavenLocal
 
 publishTo := Some(Resolver.file("localMaven",Path.userHome / ".m2" / "repository"))
 
+initialCommands := "import com.geishatokyo.jukai.factory.Region"
+
 libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-api" % "1.6.4" % "provided",
   "com.amazonaws" % "aws-java-sdk" % "1.3.26" % "provided",

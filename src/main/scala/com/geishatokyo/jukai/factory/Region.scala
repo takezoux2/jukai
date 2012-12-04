@@ -1,6 +1,6 @@
-package com.geishatokyo.pentagon.util.aws.factory
+package com.geishatokyo.jukai.factory
 
-import com.amazonaws.auth.{AWSCredentials, AWSCredentialsProvider}
+import com.amazonaws.auth.{DefaultAWSCredentialsProviderChain, AWSCredentials, AWSCredentialsProvider}
 import com.geishatokyo.jukai.simpledb.SimpleDBConnection
 import com.geishatokyo.jukai.simpledb.{SimpleDBConnection, SimpleDB}
 import com.geishatokyo.jukai.SimpleCredentialsProvider
@@ -28,6 +28,11 @@ class Region[A](
 
   def withCredentials(credentials : AWSCredentials) : Region[WithCredentials] = {
     new Region[WithCredentials](endPointDomain, SimpleCredentialsProvider(credentials))
+  }
+
+
+  def withDefaultCredentials() : Region[WithCredentials] = {
+    new Region[WithCredentials](endPointDomain, new DefaultAWSCredentialsProviderChain())
   }
 
 

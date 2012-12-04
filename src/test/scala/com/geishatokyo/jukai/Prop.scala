@@ -2,7 +2,7 @@ package com.geishatokyo.jukai
 
 import java.util.Properties
 import org.specs2.execute.{Skipped, SkipException}
-import com.geishatokyo.pentagon.util.aws.factory.Region
+import com.geishatokyo.jukai.factory.Region
 import java.io.FileInputStream
 
 /**
