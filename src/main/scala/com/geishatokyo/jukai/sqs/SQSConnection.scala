@@ -1,7 +1,7 @@
 package com.geishatokyo.jukai.sqs
 
 import com.amazonaws.services.sqs.AmazonSQS
-import com.amazonaws.services.sqs.model.{GetQueueUrlRequest, ListQueuesRequest}
+import com.amazonaws.services.sqs.model.{DeleteQueueRequest, GetQueueUrlRequest, ListQueuesRequest}
 import scala.collection.JavaConverters._
 
 /**
@@ -32,6 +32,19 @@ class SQSConnection(client : AmazonSQS) {
   def queueFromUrl(queueUrl : String) = {
     new SQS(client,queueUrl)
   }
+
+  def deleteQueueByName(queueName : String) : Boolean = {
+    val url = client.getQueueUrl(new GetQueueUrlRequest(queueName))
+    deleteQueueByUrl(url.getQueueUrl)
+  }
+  def deleteQueueByUrl(queueUrl : String) : Boolean = {
+    client.deleteQueue(new DeleteQueueRequest(queueUrl))
+    true
+  }
+
+
+  def shutdown() = client.shutdown()
+
 
 
 }

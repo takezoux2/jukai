@@ -8,6 +8,8 @@ import com.amazonaws.services.simpledb.AmazonSimpleDBClient
 import com.geishatokyo.jukai.util.StringUtil
 import com.amazonaws.services.s3.AmazonS3Client
 import com.geishatokyo.jukai.s3.S3Connection
+import com.amazonaws.services.sqs.AmazonSQSClient
+import com.geishatokyo.jukai.sqs.SQSConnection
 
 
 /**
@@ -52,6 +54,14 @@ class Region[A](
     val client = new AmazonS3Client(credentialsProvider)
     client.setEndpoint(endpoint)
     new S3Connection(client)
+  }
+
+  def sqs(implicit WithCredentials : A =:= WithCredentials) = {
+    val endpoint = join("sqs",".",endPointDomain)
+    val client = new AmazonSQSClient(credentialsProvider)
+    client.setEndpoint(endpoint)
+    new SQSConnection(client)
+
   }
 
 

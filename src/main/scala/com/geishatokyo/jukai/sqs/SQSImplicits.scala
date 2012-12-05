@@ -10,4 +10,9 @@ object SQSImplicits {
   implicit def toCreateQueueReq(queueName : String) = CreateQueueReq(queueName,Map.empty)
   implicit def toSendMessageReq(message : String) = SendMessageReq(message,None)
 
+  def fetchCount(i : Int) = ReceiveMessageReq(Some(i),None,None)
+
+  def byDefault = ReceiveMessageReq()
+
+
 }
