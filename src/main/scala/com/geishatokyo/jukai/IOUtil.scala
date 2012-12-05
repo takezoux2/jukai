@@ -26,6 +26,14 @@ object IOUtil {
     bao.toByteArray
   }
 
+  def closeQuietly(stream : InputStream) = {
+    try{
+      stream.close()
+    }catch{
+      case e : Throwable => // ignore
+    }
+  }
+
 
 
 }

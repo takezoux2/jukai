@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.model._
  */
 object S3Implicits {
 
+  // Grant
 
   implicit def toRichGrantee(grantee : Grantee) = new RichGrantee(grantee)
 
@@ -27,5 +28,9 @@ object S3Implicits {
   def amazonId(amazonId : String) = new CanonicalGrantee(amazonId)
   def canonicalId(amazonId : String) = this.amazonId(amazonId)
 
+  // Listing
+
+  def prefix(s : String) = ListUpRequest(Some(s),None,None)
+  def delimitedBy(d : String) = ListUpRequestWithDelimiter(None,None,None,d)
 
 }

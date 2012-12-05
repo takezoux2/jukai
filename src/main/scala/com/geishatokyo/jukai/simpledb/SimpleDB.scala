@@ -22,6 +22,8 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
   var rigidCheck = false
   val logger = LoggerFactory.getLogger(classOf[SimpleDB])
 
+  def client = syncClient
+
   def createDomain() = {
     val request = new CreateDomainRequest(domain)
     syncClient.createDomain(request)
@@ -50,13 +52,13 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
   }
 
 
-  def put( putValues : PutRequest* ) : AWSResult[Unit,Unit] = {
+  def put( putValues : PutRequest* ) : Boolean = {
 
     val _putValues = putValues.filter(_.values.size > 0)
 
     if (_putValues.size == 0){
       // nothing to do
-      new AWSSuccess(Unit,Unit)
+      false
     }else if (_putValues.size == 1){
       val pv = _putValues(0)
       val request = new PutAttributesRequest(domain,
@@ -68,16 +70,16 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
 
       try{
         syncClient.putAttributes(request)
-        new AWSSuccess(Unit,Unit)
+        true
       }catch{
         case e : AmazonServiceException => {
 
           e.getErrorCode match{
             case SimpleDBErrorCodes.IncompleteExpectedValues => {
-              new AWSError(e)
+              false
             }
             case SimpleDBErrorCodes.ConditionalCheckFailed => {
-              new AWSError(e)
+              false
             }
             case _ => throw e
           }
@@ -100,17 +102,17 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
       ).toList.asJava)
 
       syncClient.batchPutAttributes(request)
-      new AWSSuccess(Unit,Unit)
+      true
     }
 
 
   }
 
-  def put(key : String)( values : (String,String)*) : AWSResult[Unit,Unit]  = {
+  def put(key : String)( values : (String,String)*) : Boolean  = {
     put(PutRequest(key,values.toMap))
   }
 
-  def get(getInfo : GetRequest ) : AWSResult[Map[String,String],GetAttributesResult]= {
+  def get(getInfo : GetRequest ) : Map[String,String] = {
 
     val request = new GetAttributesRequest(domain,getInfo.key)
     if (getInfo.attributes.size > 0){
@@ -122,9 +124,7 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
 
     import SimpleDBImplicits._
     val result = syncClient.getAttributes(request)
-    new AWSSuccess(result.getAttributes,result)
-
-
+    SimpleDBImplicits.attributesToMap(result.getAttributes)
   }
 
   /**
@@ -132,27 +132,20 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
    * @param getInfo
    */
   def getOne( getInfo : GetRequest) : String = {
-    get(getInfo) match{
-      case AWSSuccess(values,_) => {
-        getInfo.attributes.find(s => values.contains(s)).map(values(_)).get
-      }
-    }
+    val values = get(getInfo)
+    getInfo.attributes.find(s => values.contains(s)).map(values(_)).get
   }
   def getOne( getInfo : GetRequest, default : => String) : String = {
-    get(getInfo) match{
-      case AWSSuccess(values,_) => {
-        getInfo.attributes.find(s => values.contains(s)).getOrElse(default)
-      }
-      case _ => default
-    }
+    val values = get(getInfo)
+    getInfo.attributes.find(s => values.contains(s)).map(values(_)).getOrElse(default)
   }
 
   /*def delete( columnInfos : GetRequest*) : AWSResult[Unit,Unit]  = {
     delete(columnInfos.map(columnInfo => DeleteRequest(columnInfo)) :_*)
   }*/
-  def delete( columnInfos : DeleteRequest*) : AWSResult[Unit,Unit]  = {
+  def delete( columnInfos : DeleteRequest*) : Boolean  = {
 
-    if (columnInfos.size == 0) AWSSuccess(Unit,Unit)
+    if (columnInfos.size == 0) return false
     else if (columnInfos.size == 1){
       // Single delete
       val columnInfo = columnInfos(0)
@@ -167,15 +160,15 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
 
       try{
         syncClient.deleteAttributes(request)
-        AWSSuccess(Unit,Unit)
+        true
       }catch{
         case e : AmazonServiceException => {
           e.getErrorCode match{
             case SimpleDBErrorCodes.IncompleteExpectedValues => {
-              new AWSError(e)
+              false
             }
             case SimpleDBErrorCodes.ConditionalCheckFailed => {
-              new AWSError(e)
+              false
             }
             case _ => throw e
           }
@@ -204,7 +197,7 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
         }).asJava
       )
       syncClient.batchDeleteAttributes(request)
-      AWSSuccess(Unit,Unit)
+      true
     }
   }
 

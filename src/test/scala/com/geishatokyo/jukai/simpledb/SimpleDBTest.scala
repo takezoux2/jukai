@@ -40,12 +40,12 @@ class SimpleDBTest extends SpecificationWithJUnit with AWSTesting {
       db.getOne("LittleBusters" -> "Natsume" consistently) must_== "Rin"
 
       {
-        val d = db.get("Air" consistently).result
+        val d = db.get("Air" consistently)
         d("Kamio") must_== "Misuzu"
         d("Tono") must_== "Minagi"
       }
       {
-        val d = db.get("Clanad" -> Seq("Fujibayashi","Ibuki") consistently).result
+        val d = db.get("Clanad" -> Seq("Fujibayashi","Ibuki") consistently)
         d.size must_== 2
         d("Fujibayashi") must_== "Kyo"
         d("Ibuki") must_== "Fuko"
@@ -62,7 +62,7 @@ class SimpleDBTest extends SpecificationWithJUnit with AWSTesting {
       db.put("Rewrite" -> Map("Tenouji" -> "Kotarou") when("Nakatsu" === "Kotarou")) // NG
       db.put("Rewrite" -> Map("Kanbe" -> "Kotori") when("Otori" exist))           // NG
 
-      val d = db.get("Rewrite" consistently).result
+      val d = db.get("Rewrite" consistently)
 
       d must_== Map("Nakatsu" -> "Shizuru","Konohana" -> "Ruchia")
 
