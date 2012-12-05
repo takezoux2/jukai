@@ -30,7 +30,7 @@ object S3Implicits {
 
   // Listing
 
-  def prefix(s : String) = ListUpRequest(Some(s),None,None)
-  def delimitedBy(d : String) = ListUpRequestWithDelimiter(None,None,None,d)
+  def prefix(s : String) = ListObjectReq(Some(s),None,None)
+  def delimitedBy(d : String) = ListUpReqWithDelimiter(None,None,None,d)
 
 }

@@ -11,21 +11,21 @@ import com.amazonaws.services.simpledb.model._
 object SimpleDBImplicits {
 
   implicit def strToGetRequest(k : String) = {
-    GetRequest(k)
+    GetReq(k)
   }
   implicit def strToDeleteRequest(k : String) = {
-    DeleteRequest(k)
+    DeleteReq(k)
   }
   implicit def tupleToGetRequest(k : (String,String)) = {
-    GetRequest(k._1,k._2)
+    GetReq(k._1,k._2)
   }
 
   implicit def tupleWithListToGetRequest(k : (String,Seq[String])) = {
-    GetRequest(k._1,k._2:_*)
+    GetReq(k._1,k._2:_*)
   }
 
   implicit def tupleWithMapToPutRequest(k : (String,Map[String,String])) = {
-    PutRequest(k._1,k._2)
+    PutReq(k._1,k._2)
   }
 
   /**
@@ -35,11 +35,11 @@ object SimpleDBImplicits {
    * @return
    */
   implicit def tupleTupleToPutRequest(v : ((String,String),String)) = {
-    PutRequest(v._1._1,Map(v._1._2 -> v._2))
+    PutReq(v._1._1,Map(v._1._2 -> v._2))
   }
 
 
-  implicit def getRequestToDeleteRequest(r : GetRequest) = DeleteRequest(r)
+  implicit def getRequestToDeleteRequest(r : GetReq) = DeleteReq(r)
 
   implicit def strToKeyWrapper( k : String) = {
     new KeyWrapper(k)
@@ -48,11 +48,11 @@ object SimpleDBImplicits {
 
 
     def ~>(values : (String,String)*) = {
-      PutRequest(k,values.toMap)
+      PutReq(k,values.toMap)
     }
 
     def ~>( attributeNames : String*) = {
-      GetRequest(k,attributeNames:_*)
+      GetReq(k,attributeNames:_*)
     }
 
     def ===(value : String) = {
@@ -87,7 +87,7 @@ object SimpleDBImplicits {
     }
   }
 
-  def toReplaceableItem( r : PutRequest) = {
+  def toReplaceableItem( r : PutReq) = {
     new ReplaceableItem(r.key, toReplaceableAttributes(r.values,r.replace_?))
   }
 

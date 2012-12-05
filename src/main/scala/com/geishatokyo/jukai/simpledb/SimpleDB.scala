@@ -52,7 +52,7 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
   }
 
 
-  def put( putValues : PutRequest* ) : Boolean = {
+  def put( putValues : PutReq* ) : Boolean = {
 
     val _putValues = putValues.filter(_.values.size > 0)
 
@@ -109,10 +109,10 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
   }
 
   def put(key : String)( values : (String,String)*) : Boolean  = {
-    put(PutRequest(key,values.toMap))
+    put(PutReq(key,values.toMap))
   }
 
-  def get(getInfo : GetRequest ) : Map[String,String] = {
+  def get(getInfo : GetReq ) : Map[String,String] = {
 
     val request = new GetAttributesRequest(domain,getInfo.key)
     if (getInfo.attributes.size > 0){
@@ -131,19 +131,19 @@ class SimpleDB(syncClient : AmazonSimpleDB,val domain : String) {
    * Get only one value
    * @param getInfo
    */
-  def getOne( getInfo : GetRequest) : String = {
+  def getOne( getInfo : GetReq) : String = {
     val values = get(getInfo)
     getInfo.attributes.find(s => values.contains(s)).map(values(_)).get
   }
-  def getOne( getInfo : GetRequest, default : => String) : String = {
+  def getOne( getInfo : GetReq, default : => String) : String = {
     val values = get(getInfo)
     getInfo.attributes.find(s => values.contains(s)).map(values(_)).getOrElse(default)
   }
 
-  /*def delete( columnInfos : GetRequest*) : AWSResult[Unit,Unit]  = {
-    delete(columnInfos.map(columnInfo => DeleteRequest(columnInfo)) :_*)
+  /*def delete( columnInfos : GetReq*) : AWSResult[Unit,Unit]  = {
+    delete(columnInfos.map(columnInfo => DeleteReq(columnInfo)) :_*)
   }*/
-  def delete( columnInfos : DeleteRequest*) : Boolean  = {
+  def delete( columnInfos : DeleteReq*) : Boolean  = {
 
     if (columnInfos.size == 0) return false
     else if (columnInfos.size == 1){

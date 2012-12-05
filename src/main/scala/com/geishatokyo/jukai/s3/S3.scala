@@ -3,7 +3,8 @@ package com.geishatokyo.jukai.s3
 import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3Client}
 import scala.collection.JavaConverters._
-import com.geishatokyo.jukai.{AWSResult, AWSSuccess, IOUtil}
+import com.geishatokyo.jukai.util.IOUtil
+import com.geishatokyo.jukai.{AWSResult, AWSSuccess}
 import com.amazonaws.services.s3.model._
 import java.io.{ByteArrayInputStream, InputStream}
 import scala.Left
@@ -240,10 +241,10 @@ class S3(val client : AmazonS3,bucketName : String) extends scala.collection.mut
     new Paging(list,true)
   }
   def listObjects(prefix : String,maxCount : Int) : Paging= {
-    listObjects(ListUpRequest(Some(prefix),None,Some(maxCount)))
+    listObjects(ListObjectReq(Some(prefix),None,Some(maxCount)))
   }
 
-  def listObjects( request : ListUpRequest ) : Paging = {
+  def listObjects( request : ListObjectReq ) : Paging = {
     val req = request.toS3Request(bucketName)
     val list = client.listObjects(req)
     new Paging(list,!request.maxKeyCount.isDefined)
@@ -265,7 +266,7 @@ class S3(val client : AmazonS3,bucketName : String) extends scala.collection.mut
    * @return (files,commonPrefixes)
    */
 
-  def listObjects(request : ListUpRequestWithDelimiter) : (Paging,List[String]) = {
+  def listObjects(request : ListUpReqWithDelimiter) : (Paging,List[String]) = {
     val req = request.toS3Request(bucketName)
     val list = client.listObjects(req)
     (new Paging(list,!request.maxKeyCount.isDefined), list.getCommonPrefixes().asScala.toList )

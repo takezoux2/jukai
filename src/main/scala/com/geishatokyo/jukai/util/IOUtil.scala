@@ -1,4 +1,4 @@
-package com.geishatokyo.jukai
+package com.geishatokyo.jukai.util
 
 import java.io.{ByteArrayOutputStream, InputStream}
 
