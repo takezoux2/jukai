@@ -4,11 +4,9 @@ import com.amazonaws.auth.AWSCredentialsProvider
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3Client}
 import scala.collection.JavaConverters._
 import com.geishatokyo.jukai.util.IOUtil
-import com.geishatokyo.jukai.{AWSResult, AWSSuccess}
 import com.amazonaws.services.s3.model._
 import java.io.{ByteArrayInputStream, InputStream}
 import scala.Left
-import com.geishatokyo.jukai.AWSSuccess
 import scala.Some
 import scala.Right
 import com.amazonaws.AmazonServiceException
@@ -158,14 +156,14 @@ class S3(val client : AmazonS3,bucketName : String) extends scala.collection.mut
   }
 
 
-  def putObject(key : String, data : Array[Byte]) : AWSResult[String,PutObjectResult]  = {
+  def putObject(key : String, data : Array[Byte]) : PutObjectResult = {
     val metadata = metadataGenerator.generateMetadata(key,data)
 
     putObject(key , new ByteArrayInputStream(data),metadata)
   }
 
 
-  def putObject(key : String, inputStream : InputStream, metadata : ObjectMetadata) : AWSResult[String,PutObjectResult] = {
+  def putObject(key : String, inputStream : InputStream, metadata : ObjectMetadata) : PutObjectResult = {
     val response = client.putObject(bucketName,key,inputStream,metadata)
     defaultACL match{
       case None =>
@@ -176,7 +174,7 @@ class S3(val client : AmazonS3,bucketName : String) extends scala.collection.mut
         setACL(key,accessControlList)
       }
     }
-    AWSSuccess(response.getVersionId,response)
+    response
   }
 
 

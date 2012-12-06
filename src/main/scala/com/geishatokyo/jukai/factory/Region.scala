@@ -3,13 +3,14 @@ package com.geishatokyo.jukai.factory
 import com.amazonaws.auth.{DefaultAWSCredentialsProviderChain, AWSCredentials, AWSCredentialsProvider}
 import com.geishatokyo.jukai.simpledb.SimpleDBConnection
 import com.geishatokyo.jukai.simpledb.{SimpleDBConnection, SimpleDB}
-import com.geishatokyo.jukai.SimpleCredentialsProvider
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient
 import com.geishatokyo.jukai.util.StringUtil
 import com.amazonaws.services.s3.AmazonS3Client
 import com.geishatokyo.jukai.s3.S3Connection
 import com.amazonaws.services.sqs.AmazonSQSClient
 import com.geishatokyo.jukai.sqs.SQSConnection
+import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClient
+import com.geishatokyo.jukai.simpleemail.SimpleEmail
 
 
 /**
@@ -61,6 +62,20 @@ class Region[A](
     val client = new AmazonSQSClient(credentialsProvider)
     client.setEndpoint(endpoint)
     new SQSConnection(client)
+
+  }
+
+  def simpleMail(implicit WithCredentials : A =:= WithCredentials) = {
+    val endpoint = "email.us-east-1.amazonaws.com"
+    val client = new AmazonSimpleEmailServiceClient(credentialsProvider)
+    client.setEndpoint(endpoint)
+    new SimpleEmail(client)
+  }
+  def simpleMail_smtp(implicit WithCredentials : A =:= WithCredentials) = {
+    val endpoint = "email-smtp.us-east-1.amazonaws.com:465"
+    val client = new AmazonSimpleEmailServiceClient(credentialsProvider)
+    client.setEndpoint(endpoint)
+    new SimpleEmail(client)
 
   }
 

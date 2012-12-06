@@ -1,4 +1,4 @@
-package com.geishatokyo.jukai
+package com.geishatokyo.jukai.factory
 
 import com.amazonaws.auth.{BasicAWSCredentials, AWSCredentials, AWSCredentialsProvider}
 
