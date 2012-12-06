@@ -28,6 +28,22 @@ class SQSTest extends SpecificationWithJUnit with AWSTesting {
     }
   }
 
+  "get queue" should{
+    "should create automatically" in {
+      runIfEnabled("sqs"){
+
+        val sqsConnection = Prop.region.sqs
+
+        val queue = sqsConnection.queueFromName("jukai-test-auto-create",autoCreate = true)
+
+        queue must not beNull
+
+        sqsConnection.deleteQueueByUrl(queue.queueUrl)
+        sqsConnection.shutdown()
+      }
+    }
+  }
+
   "queue" should{
     "queue and dequeue" in withQueue("jukai-test-sqs1")( sqs => {
       sqs.sendMessage("Test message")
@@ -54,6 +70,7 @@ class SQSTest extends SpecificationWithJUnit with AWSTesting {
 
       sqs.sendMessage("Message1")
       sqs.sendMessage("Message2")
+      sqs.sendMessage("Message3")
 
       Thread.sleep(3000)
 
@@ -63,7 +80,7 @@ class SQSTest extends SpecificationWithJUnit with AWSTesting {
 
       println("$$ " + messages)
 
-      messages must haveSize(2)
+      messages.size must greaterThan(0)
 
     })
   }

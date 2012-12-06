@@ -10,7 +10,7 @@ import actors.threadpool.TimeoutException
  * User: takeshita
  * DateTime: 12/12/05 16:45
  */
-class SQS(client : AmazonSQS,queueUrl : String) {
+class SQS(val client : AmazonSQS,val queueUrl : String) {
 
 
   def sendMessage( sendMessageReq : SendMessageReq) = {
@@ -59,8 +59,6 @@ class SQS(client : AmazonSQS,queueUrl : String) {
   }
 
 
-
-
   def processMessage[T](receiveMessageReq : ReceiveMessageReq, func : Message => T) : List[T] = {
     val messages = receiveMessage(receiveMessageReq)
     val results = messages.map( m => func(m))
@@ -68,8 +66,23 @@ class SQS(client : AmazonSQS,queueUrl : String) {
     results
   }
 
+  def addPermissions(label : String, awsIds : Seq[String],permissions : Seq[Permission.Value]) = {
+    val req = new AddPermissionRequest(queueUrl,label,awsIds.toList.asJava,permissions.map(_.toString).toList.asJava)
+    client.addPermission(req)
+  }
 
+  def removePermissions(label : String) = {
+    val req = new RemovePermissionRequest(queueUrl,label)
+    client.removePermission(req)
+  }
 
+  def getQueueAttributes() : Map[String,String] = {
+    client.getQueueAttributes(new GetQueueAttributesRequest(queueUrl)).getAttributes.asScala.toMap
+  }
+
+  def setQueueAttributes( attrs : Map[String,String]) = {
+    client.setQueueAttributes(new SetQueueAttributesRequest(queueUrl,attrs.asJava))
+  }
 
 
   def shutdown() = {
